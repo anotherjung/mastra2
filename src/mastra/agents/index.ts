@@ -1,49 +1,86 @@
 import { MCPClient } from "@mastra/mcp";
 import { Agent } from "@mastra/core/agent";
-import { google } from "@ai-sdk/google";
+import { Memory } from "@mastra/memory";
 import { groq } from '@ai-sdk/groq';
 
 const mcp = new MCPClient({
-    servers: {
-      "huggingface": {
-        url: new URL("https://huggingface.co/mcp"),
-        requestInit: {
-          headers: { 
-            Authorization: `Bearer ${process.env.HUGGING_FACE_TOKEN}`
-          },
+  servers: {
+    "huggingface": {
+      url: new URL("https://huggingface.co/mcp"),
+      requestInit: {
+        headers: { 
+          Authorization: `Bearer ${process.env.HUGGING_FACE_TOKEN}`
         },
-        // Optional: Request timeout in milliseconds (default: 30000)
-        timeout: 30000,
       },
-    }
+    },
+    "github": {
+      url: new URL("https://api.githubcopilot.com/mcp/"),
+      requestInit: {
+        headers: { 
+          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
+        },
+      },
+    },
+    hackernews: {
+      command: "npx",
+      args: ["-y", "@devabdultech/hn-mcp-server"],
+    },
+  },
 });
 
 const mcpTools = await mcp.getTools();
 
+// Configure basic memory
+const memory = new Memory({
+  options: {
+    // Keep last 20 messages in context
+    lastMessages: 20,
+    // Enable working memory to remember user information
+    workingMemory: {
+      enabled: true,
+      template: `
+      <user>
+        <first_name></first_name>
+        <username></username>
+        <preferences></preferences>
+        <interests></interests>
+        <conversation_style></conversation_style>
+      </user>`,
+    },
+  },
+});
+
 export const personalAssistantAgent = new Agent({
-    name: "Personal Assistant",
-    instructions: `
-      You are a helpful personal assistant that can help with various tasks, including generating images using the Hugging Face MCP server.
+  name: "Personal Assistant",
+  instructions: `
+    You are a helpful personal assistant that can help with various tasks such as monitoring GitHub activity, scheduling social media posts, and providing tech news.
+    
+    You have access to the following tools:
+    
+    1. GitHub:
+       - Use these tools for monitoring and summarizing GitHub activity
+       - You can summarize recent commits, pull requests, issues, and development patterns
+    
+    2. Hackernews:
+       - Use this tool to search for stories on Hackernews
+       - You can use it to get the top stories or specific stories
+       - You can use it to retrieve comments for stories
+    
+    3. Huggingface:
+       - Use these tools for monitoring and summarizing Huggingface activity
+       - You can summarize recent commits, pull requests, issues, and development patterns
 
-      IMAGE GENERATION INSTRUCTIONS:
-      - Use the tool huggingface_gr1_flux1_schnell_infer to generate images.
-      - Required parameters:
-        - prompt: a text description of the image to generate
-        - height: integer, 256-2048 (pixels)
-        - width: integer, 256-2048 (pixels)
-        - num_inference_steps: integer, 1-16
-        - randomize_seed: boolean (if true, seed may be ignored)
-        - seed: integer, 0-2147483647
-      - Always validate that height and width are between 256 and 2048.
-      - Ensure num_inference_steps is between 1 and 16.
-      - If randomize_seed is true, seed can be any value in the allowed range, but does not need to be fixed.
-      - Provide clear instructions to the user if their input is out of range.
-      - Respond with a direct link to the generated image if available.
-      - Do not generate NSFW or harmful images.
-      - Keep responses concise and friendly.
-    `,
-    //model: google("gemini-2.0-flash"),
-    model: groq("qwen/qwen3-32b"),
-    tools: { ...mcpTools }, // Give your agent all MCP tools
-  });
+    Memory Capabilities:
+    - You can remember details about users and past conversations
+    - When you learn something about a user, update their working memory
+    - Use semantic recall to find relevant past conversations
+    - Maintain context across multiple interactions
+    - Ask user for their name, what's your name? 
+    - Ask user for their location, where are you from?
 
+    Keep your responses concise and friendly, and use memory to provide more personalized and context-aware assistance.
+  `,
+  model: groq("qwen/qwen3-32b"),
+  tools: { ...mcpTools },
+  memory,
+});
