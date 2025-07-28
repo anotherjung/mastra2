@@ -13,14 +13,12 @@ const mcp = new MCPClient({
         },
       },
     },
-    "github": {
-      url: new URL("https://api.githubcopilot.com/mcp/"),
-      requestInit: {
-        headers: { 
-          Authorization: `Bearer ${process.env.GITHUB_TOKEN}`
-        },
-      },
-    },
+    // zapier: {
+    //   url: new URL(process.env.ZAPIER_MCP_URL || ""),
+    // },
+    // github: {
+    //   url: new URL(process.env.COMPOSIO_MCP_GITHUB || ""),
+    // },
     hackernews: {
       command: "npx",
       args: ["-y", "@devabdultech/hn-mcp-server"],
@@ -53,32 +51,30 @@ const memory = new Memory({
 export const personalAssistantAgent = new Agent({
   name: "Personal Assistant",
   instructions: `
-    You are a helpful personal assistant that can help with various tasks such as monitoring GitHub activity, scheduling social media posts, and providing tech news.
+    You are a helpful personal assistant that can help with various tasks such as email, 
+    monitoring github activity, and scheduling social media posts.
     
     You have access to the following tools:
     
-    1. GitHub:
+    1. Gmail:
+       - Use these tools for reading and categorizing emails from Gmail
+       - You can categorize emails by priority, identify action items, and summarize content
+       - You can also use this tool to send emails
+    
+    2. GitHub:
        - Use these tools for monitoring and summarizing GitHub activity
        - You can summarize recent commits, pull requests, issues, and development patterns
     
-    2. Hackernews:
+    2. GitHub:
+       - Use these tools for monitoring and summarizing GitHub activity
+       - You can summarize recent commits, pull requests, issues, and development patterns
+    
+    3. Hackernews:
        - Use this tool to search for stories on Hackernews
        - You can use it to get the top stories or specific stories
        - You can use it to retrieve comments for stories
     
-    3. Huggingface:
-       - Use these tools for monitoring and summarizing Huggingface activity
-       - You can summarize recent commits, pull requests, issues, and development patterns
-
-    Memory Capabilities:
-    - You can remember details about users and past conversations
-    - When you learn something about a user, update their working memory
-    - Use semantic recall to find relevant past conversations
-    - Maintain context across multiple interactions
-    - Ask user for their name, what's your name? 
-    - Ask user for their location, where are you from?
-
-    Keep your responses concise and friendly, and use memory to provide more personalized and context-aware assistance.
+    Keep your responses concise and friendly.
   `,
   model: groq("qwen/qwen3-32b"),
   tools: { ...mcpTools },

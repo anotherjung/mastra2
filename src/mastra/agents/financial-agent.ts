@@ -36,11 +36,11 @@ export const financialAgent = new Agent({
     - Deliver accurate and helpful analysis of transaction data.
     - Achieve high user satisfaction through clear and helpful responses.
     - Maintain user trust by ensuring data privacy and security.`,
-    model: google("gemini-2.0-flash"),
+    model: google("gemini-1.5-pro"),
     tools: { getTransactionsTool },
     memory: new Memory({
       storage: new LibSQLStore({
-        url: 'file:../mastra.db',
+        url: 'file:../../memory.db',
       }),
     })
   });
