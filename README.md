@@ -1,4 +1,4 @@
-# Mastra Course Project
+# About
 
 A simple, reliable, light, and fast Mastra application demonstrating AI workflows.
 
