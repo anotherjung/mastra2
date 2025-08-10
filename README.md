@@ -2,6 +2,10 @@
 
 A simple, reliable, light, and fast Mastra application demonstrating AI workflows.
 
+# Topics
+
+mastra-ia, huggingface, mcp-tools
+
 ## 🚀 Quick Start
 
 ```bash
