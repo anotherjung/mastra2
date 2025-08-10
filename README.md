@@ -30,7 +30,7 @@ src/mastra/
 └── index.ts          # Main configuration
 ```
 
-## 🔧 Available Workflows
+## 🔧 Key Features 
 
 ### Weather Workflow
 - **Input**: `{ city: string }`
@@ -41,6 +41,9 @@ src/mastra/
 - **Input**: `{ expression: string }`
 - **Output**: `{ result: number, explanation: string }`
 - **Function**: Performs mathematical calculations with explanations
+
+### MCP tools
+- hugging face models 
 
 ## 🎯 Design Principles
 
